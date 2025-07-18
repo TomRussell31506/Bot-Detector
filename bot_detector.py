@@ -42,7 +42,8 @@ def check_user_agent(logs):
             log['possible_bot'] = True 
     return logs
 
-def check_high_requests(logs, time_window_seconds=60, threshold=10):
+def check_high_requests_in_short_time(logs, time_window_seconds=60, threshold= 10):
+    # convert timestamp strings to datetime objects
     for log in logs:
         log['datetime'] = datetime.strptime(log['timestamp'], "%d/%m/%Y:%H:%M:%S")
 
@@ -67,6 +68,8 @@ def check_high_requests(logs, time_window_seconds=60, threshold=10):
                     log_index = entries[idx][0]
                     logs[log_index]['possible_bot'] = True
                 break
+
+    
     
     # remove unnecessary key
     for log in parsed_logs:
@@ -78,7 +81,7 @@ def check_response_time(logs):
     for log in logs:
         response_time = int(log['response_time'])
         if response_time <= 30:
-            log['possible bot'] = True
+            log['possible_bot'] = True
 
     return logs
 
@@ -95,7 +98,7 @@ def calc_percentage_bots(logs, num_bots):
 
 
 parsed_logs = check_user_agent(parsed_logs)
-parsed_logs = check_high_requests(parsed_logs)
+parsed_logs = check_high_requests_in_short_time(parsed_logs)
 parsed_logs = check_response_time(parsed_logs)
 
 num_possible_bots = sum_possible_bots(parsed_logs)
@@ -104,7 +107,3 @@ percentage_bots = calc_percentage_bots(parsed_logs, num_possible_bots)
 print("The total number of bot-like logs: "+ str(num_possible_bots))
 print("The total number of logs: "+ str(len(parsed_logs)))
 print("The percentage of requests likely to be bots: "+ str(percentage_bots)+"%")
-
-
-
-
